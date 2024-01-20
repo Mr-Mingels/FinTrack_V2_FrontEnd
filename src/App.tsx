@@ -1,25 +1,34 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, lazy, Suspense } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { UserProfileProvider } from './contexts/UserProfile.ts'
+import { User } from './types/index.ts';
+import Expenses from './components/dashboard/Expenses.tsx';
 
-function App() {
+const SignIn = lazy(() => import('./pages/SignIn.tsx') as any)
+const SignUp = lazy(() => import('./pages/SignUp.tsx') as any)
+const Dashboard = lazy(() => import('./pages/Dashboard.tsx') as any)
+
+const App = () => {
+  const [userProfile, setUserProfile] = useState<User | null>(null)
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Suspense fallback={<div className='mainLoaderWrapper'><span className="mainLoader"></span></div>}>
+        <UserProfileProvider value={{ userProfile, setUserProfile }}>
+          <Routes>
+            <Route path='/log-in' element={<SignIn />} />
+            <Route path='/sign-up' element={<SignUp />} />
+            <Route path='/' element={<Dashboard />}>
+              <Route path='overview' />
+              <Route path='budget' />
+              <Route path='expenses' element={<Expenses />}/>
+              <Route path='calender' />
+              <Route path='analytics' />
+            </Route>
+          </Routes>
+        </UserProfileProvider>
+      </Suspense>
+    </BrowserRouter>
   );
 }
 
