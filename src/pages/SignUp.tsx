@@ -1,7 +1,7 @@
 import React, { useState, useEffect, ChangeEvent } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCoins } from '@fortawesome/free-solid-svg-icons'
-import { InputField } from '../components/misc/InputField'
+import { AuthInputField } from '../components/misc/AuthInputField'
 import { Button } from '../components/misc/Button'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
@@ -115,21 +115,21 @@ const SignUp = () => {
                         Email
                         <span className='text-[#ff6464]'>*</span>
                     </label>
-                    <InputField value={email.value} placeholder={email.placeholder} inputType='email' name='email'
+                    <AuthInputField value={email.value} placeholder={email.placeholder} inputType='email' name='email'
                         onChangeHandler={(e: ChangeEvent<HTMLInputElement>) => setEmail({...email, value: e.target.value})} 
                         additionalStyles={`${redEmailPlaceHolder ? 'placeholder:text-[#ff6464]' : ''} mb-6`} />
                     <label className='items-center flex text-[15px] gap-0.5 mb-1'>
                         Password
                         <span className='text-[#ff6464]'>*</span>
                     </label>
-                    <InputField value={password.value} placeholder={password.placeholder} inputType='password' name='password'
+                    <AuthInputField value={password.value} placeholder={password.placeholder} inputType='password' name='password'
                         onChangeHandler={(e: ChangeEvent<HTMLInputElement>) => setPassword({...password, value: e.target.value})} 
                         additionalStyles={`${redPasswordPlaceholder ? 'placeholder:text-[#ff6464]' : ''} mb-6`} />
                     <label className='items-center flex text-[15px] gap-0.5 mb-1'>
                         Confirm Password
                         <span className='text-[#ff6464]'>*</span>
                     </label>
-                    <InputField value={confirmPassword.value} placeholder={confirmPassword.placeholder} inputType='password'
+                    <AuthInputField value={confirmPassword.value} placeholder={confirmPassword.placeholder} inputType='password'
                         onChangeHandler={(e: ChangeEvent<HTMLInputElement>) => setConfirmPassword({ ...confirmPassword,value: e.target.value })} 
                         additionalStyles={`${redConfirmPasswordPlaceholder ? 'placeholder:text-[#ff6464]' : ''} mb-6`} />
                     <div className='flex flex-col gap-4 mt-3'>

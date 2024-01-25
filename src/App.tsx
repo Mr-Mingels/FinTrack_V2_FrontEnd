@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { UserProfileProvider } from './contexts/UserProfile.ts'
 import { User } from './types/index.ts';
 import Expenses from './components/dashboard/Expenses.tsx';
+import Budgets from './components/dashboard/Budgets.tsx';
+import { Toaster } from 'sonner'
 
 const SignIn = lazy(() => import('./pages/SignIn.tsx') as any)
 const SignUp = lazy(() => import('./pages/SignUp.tsx') as any)
@@ -20,12 +22,13 @@ const App = () => {
             <Route path='/sign-up' element={<SignUp />} />
             <Route path='/' element={<Dashboard />}>
               <Route path='overview' />
-              <Route path='budget' />
+              <Route path='budget' element={<Budgets />}/>
               <Route path='expenses' element={<Expenses />}/>
               <Route path='calender' />
               <Route path='analytics' />
             </Route>
           </Routes>
+          <Toaster position="top-right" richColors closeButton/>
         </UserProfileProvider>
       </Suspense>
     </BrowserRouter>

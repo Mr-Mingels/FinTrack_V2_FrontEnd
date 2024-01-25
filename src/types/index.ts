@@ -21,7 +21,29 @@ export interface ButtonProps {
     type?: "submit" | "reset" | "button"
     gradient?: boolean
 	additionalStyles?: string
-	onClickHandler: () => void
+	onClickHandler?: () => void
     children: ReactNode
 	disabled?: boolean
+}
+
+export interface ModalBackgroundProps {
+    children: React.ReactNode
+}
+
+export interface ModalInputProps {
+    value: string
+    onChangeHandler: (e: ChangeEvent<HTMLInputElement>) => void;
+    additionalStyles?: string
+    placeholder: string
+}
+
+export type BudgetCategoryInput = {
+    nameField: {
+        name: string
+        emptyField: boolean
+    }
+    percentageField: {
+        percentage: string
+        emptyField: boolean
+    }
 }

@@ -41,7 +41,7 @@ const DashBoard = () => {
     <div className='min-h-screen w-full'>
       <div className='flex w-full'>
         <SideBar />
-        <div className='flex-grow bg-[#f5f6f8]'>
+        <div className='flex-grow bg-[#f5f6f8] px-[30px] py-6'>
           <Outlet />
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear, faCreditCard, faMagnifyingGlass, faWallet, faCalendarDays, faChartLine, faCoins } from '@fortawesome/free-solid-svg-icons';
@@ -30,10 +30,6 @@ const SideBar = () => {
       itemIcon: faChartLine
     },
   ]
-
-  useEffect(() => {
-    console.log(location.pathname)
-  },[location.pathname])
 
   return (
     <div className='min-h-screen min-w-[280px] w-[280px] shadow-[1px_0_10px_rgba(0,0,0,0.1)] z-10'>
