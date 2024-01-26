@@ -5,6 +5,7 @@ import { AuthInputField } from '../components/misc/AuthInputField'
 import { Button } from '../components/misc/Button'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { toast } from 'sonner'
 
 const SignUp = () => {
     const [redEmailPlaceHolder, setRedEmailPlaceHolder] = useState<boolean>(false)
@@ -95,6 +96,7 @@ const SignUp = () => {
                 }
             } else {
                 console.error('Error', error.message);
+                toast.error('Unknown Server Error')
             }
             setLoader(false)
         }

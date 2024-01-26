@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ModalBackground } from '../misc/ModalBackground'
 import { faXmark, faTrashCan } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -14,8 +14,12 @@ type AddBudgetProps = {
 
 export const AddBudget = ({ setModalOpen }: AddBudgetProps) => {
     const [budgetName, setBudgetName] = useState<string>('')
+    const [budgetNameError, setBudgetNameError] = useState<boolean>(false)
+    const [monthlyAmountError, setMonthlyAmountError] = useState<boolean>(false)
+    const [monthlyAmount, setMonthlyAmount] = useState<string>('')
     const [loader, setLoader] = useState<boolean>(false)
     const [sumError, setSumError] = useState<boolean>(false)
+    const [sumOfPercentages, setSumOfPercentages] = useState<number>(0)
     const [categories, setCategories] = useState<BudgetCategoryInput[]>([{
         nameField: {
             name: '',
@@ -63,21 +67,28 @@ export const AddBudget = ({ setModalOpen }: AddBudgetProps) => {
                 };
             });
 
-            const sumOfPercentages = categories.reduce((accumulator, category) => {
-                const percentage = parseInt(category.percentageField.percentage);
-                return isNaN(percentage) ? accumulator : accumulator + percentage;
-            }, 0);
-
             const hasEmptyFields = newCategories.some((category) => category.nameField.emptyField || category.percentageField.emptyField);
 
             setCategories(newCategories)
 
-            if (hasEmptyFields || sumOfPercentages > 100) {
-                if (sumOfPercentages > 100) {
+            if (hasEmptyFields || sumOfPercentages < 100 || budgetName === '' || monthlyAmount === '') {
+                if (sumOfPercentages < 100) {
                     setSumError(true)
-                    toast.error('Total Sum of Budget Percentage exceeds 100%. Please adjust your category percentages.')
-                } else if (hasEmptyFields) {
+                    toast.error('Total Sum of Budget Percentage is below 100%. Please adjust your category percentages.')
+                } else {
                     setSumError(false)
+                }
+
+                if (budgetName === '') {
+                    setBudgetNameError(true)
+                } else {
+                    setBudgetNameError(false)
+                }
+
+                if (monthlyAmount === '') {
+                    setMonthlyAmountError(true)
+                } else {
+                    setMonthlyAmountError(false)
                 }
                 setLoader(false)
                 return
@@ -92,10 +103,13 @@ export const AddBudget = ({ setModalOpen }: AddBudgetProps) => {
 
             const budget = {
                 budgetName: budgetName,
-                budgetCategories: budgetCategories
+                budgetCategories: budgetCategories,
+                monthlyBudgetAmount: monthlyAmount
             }
 
             setSumError(false)
+            setBudgetNameError(false)
+            setMonthlyAmountError(false)
             const response = await axios.post(`${process.env.REACT_APP_BACKEND_API_URL}/api/v1/budget/add-budget`, budget, { withCredentials: true })
             if (response.status === 200) {
                 setModalOpen(false)
@@ -104,8 +118,19 @@ export const AddBudget = ({ setModalOpen }: AddBudgetProps) => {
             setLoader(false)
         } catch (err) {
             console.log(err)
+            toast.error('Unknown Server Error')
+            setLoader(false)
         }
     }
+
+    useEffect(() => {
+        const sumOfPercentages = categories.reduce((accumulator, category) => {
+            const percentage = parseInt(category.percentageField.percentage);
+            return isNaN(percentage) ? accumulator : accumulator + percentage;
+        }, 0);
+
+        setSumOfPercentages(sumOfPercentages)
+    }, [categories])
 
     return (
         <ModalBackground>
@@ -119,11 +144,25 @@ export const AddBudget = ({ setModalOpen }: AddBudgetProps) => {
                 <div className='flex flex-col gap-6'>
                     <div className='flex flex-col'>
                         <label className='text-[13px] mb-1 ml-1 text-[#444444]'>Budget Name <span className='text-[#FF4D4D]'>*</span></label>
-                        <ModalInput value={budgetName} onChangeHandler={(e) => setBudgetName(e.target.value)} placeholder='Ex. Personal Finance' />
+                        <ModalInput value={budgetName} onChangeHandler={(e) => setBudgetName(e.target.value)} placeholder={budgetNameError ? 'Fill Out Field' : 'Ex. Personal Finance'}
+                            additionalStyles={`${budgetNameError ? 'placeholder:text-[#FF4D4D] border-[#FF4D4D]' : ''}`} />
+                        <label className='text-[13px] mb-1 ml-1 mt-6 text-[#444444]'>Monthly Budget Amount <span className='text-[#FF4D4D]'>*</span></label>
+                        <ModalInput value={monthlyAmount} onChangeHandler={(e) => {
+                            const input = e.target.value;
+                            const isValidInput = /^\d*\.?\d*$/.test(input);
+                            if (isValidInput) {
+                                setMonthlyAmount(e.target.value)
+                            }
+                        }}
+                            placeholder={monthlyAmountError ? 'Fill Out Field' : 'Ex. $10,000'}
+                            additionalStyles={`${monthlyAmountError ? 'placeholder:text-[#FF4D4D] border-[#FF4D4D]' : ''}`} />
                     </div>
                     <div className='flex flex-col'>
-                        <label className='text-[13px] mb-1 ml-1 text-[#444444]'>Budget Categories <span className='text-[#FF4D4D]'>*</span></label>
-                        <div className='flex flex-col gap-3 overflow-y-scroll max-h-[300px]'>
+                        <div className='flex items-center justify-between'>
+                            <label className='text-[13px] mb-1 ml-1 text-[#444444]'>Budget Categories <span className='text-[#FF4D4D]'>*</span></label>
+                            <div className='mb-1 mr-1 text-[13px] text-[#1b1b1b] flex items-center'><span className={`${sumOfPercentages > 100 ? 'text-[#FF4D4D]' : ''}`}>{sumOfPercentages}%</span>&nbsp;/ 100%</div>
+                        </div>
+                        <div className='flex flex-col gap-3 overflow-y-scroll max-h-[200px]'>
                             {categories.map((category, index) => (
                                 <div key={index} className='flex gap-4'>
                                     <ModalInput
@@ -146,7 +185,18 @@ export const AddBudget = ({ setModalOpen }: AddBudgetProps) => {
                                             if (isValidInput) {
                                                 setCategories((prevCategories) => {
                                                     const newCategories = [...prevCategories];
+                                                    const filteredCategories = newCategories.filter((_, currentIndex) => currentIndex !== index);
+                                                    const sumOfFilteredCategories = filteredCategories.reduce((accumulator, category) => {
+                                                        const percentage = parseInt(category.percentageField.percentage);
+                                                        return isNaN(percentage) ? accumulator : accumulator + percentage;
+                                                    }, 0);
+                                                    console.log(newCategories[index].percentageField.percentage, sumOfFilteredCategories, filteredCategories)
                                                     newCategories[index].percentageField.percentage = input;
+                                                    if (parseInt(newCategories[index].percentageField.percentage) + sumOfFilteredCategories > 100 ||
+                                                        parseInt(newCategories[index].percentageField.percentage) > 100) {
+                                                        newCategories[index].percentageField.percentage = input.slice(0, -1);
+                                                        return prevCategories
+                                                    }
                                                     return newCategories;
                                                 });
                                             }

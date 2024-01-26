@@ -8,6 +8,19 @@ export interface User {
     createdAt: string
 }
 
+export type BudgetCategories = {
+    name: string
+    percentage: number
+}
+
+export interface Budget {
+    budgetName: string
+    categories: BudgetCategories[]
+    createdAt: string
+    monthlyBudgetAmount: string
+    user: string
+}
+
 export interface InputFieldProps {
     value: string
     additionalStyles?: string
@@ -46,4 +59,8 @@ export type BudgetCategoryInput = {
         percentage: string
         emptyField: boolean
     }
+}
+
+export type BudgetPieChartProps = {
+    categories: BudgetCategories[]
 }

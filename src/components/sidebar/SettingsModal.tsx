@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 //import UserProfileContext from '../../contexts/UserProfile.ts';
 import { SettingModalProps } from '../../types/sidebar/index.ts';
+import { toast } from 'sonner';
+
 
 const SettingsModal = ({ setModalOpen }: SettingModalProps) => {
     // const { userProfile, setUserProfile } = useContext(UserProfileContext);
@@ -16,6 +18,7 @@ const SettingsModal = ({ setModalOpen }: SettingModalProps) => {
             }
         } catch (err) {
             console.log(err)
+            toast.error('Unknown Server Error')
         }
     }
 

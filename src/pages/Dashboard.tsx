@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import UserProfileContext from '../contexts/UserProfile.ts';
 import SideBar from '../components/sidebar/SideBar.tsx';
+import { toast } from 'sonner';
 
 const DashBoard = () => {
   const { userProfile, setUserProfile } = useContext(UserProfileContext);
@@ -21,10 +22,11 @@ const DashBoard = () => {
         navigate('/log-in')
       }
     } catch (error: any) {
-      console.log(error.message);
       console.log(error);
       if (error.response.status === 401) {
         navigate('/log-in')
+      } else {
+        toast.error('Unknown Server Error')
       }
     }
   };
