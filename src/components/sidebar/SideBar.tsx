@@ -32,8 +32,8 @@ const SideBar = () => {
   ]
 
   return (
-    <div className='min-h-screen min-w-[280px] w-[280px] shadow-[1px_0_10px_rgba(0,0,0,0.1)] z-10'>
-      <div className='flex flex-col items-center min-h-screen justify-between px-7 py-6'>
+    <div className='min-h-[740px] h-screen min-w-[280px] w-[280px] shadow-[1px_0_10px_rgba(0,0,0,0.1)] z-10'>
+      <div className='flex flex-col items-center h-full justify-between px-7 py-6'>
         <div className='w-full h-16 flex justify-center items-center mb-4 pb-4 border-b-[#dadada] border-b border-solid'>
           <div className='flex items-center justify-start w-full gap-3'>
             <div className='authLogoWrapper items-center bg-[#6d9dc5] box-border flex h-[45px] justify-center min-h-[45px] min-w-[40px] w-10 border-2 border-solid border-[#6d9dc5]'>

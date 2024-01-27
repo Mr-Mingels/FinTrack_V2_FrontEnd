@@ -19,6 +19,7 @@ export interface Budget {
     createdAt: string
     monthlyBudgetAmount: string
     user: string
+    _id: string
 }
 
 export interface InputFieldProps {

@@ -8,29 +8,39 @@ import { BudgetCategoryInput } from '../../types'
 import { toast } from 'sonner'
 import BudgetContext from '../../contexts/Budgets'
 import axios from 'axios'
+import { Budget } from '../../types'
+import ReactDOM from 'react-dom';
 
-type AddBudgetProps = {
+type EditBudgetProps = {
     setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+    budget: Budget
 }
 
-export const AddBudgetModal = ({ setModalOpen }: AddBudgetProps) => {
-    const [budgetName, setBudgetName] = useState<string>('')
+export const EditBudgetModal = ({ setModalOpen, budget }: EditBudgetProps) => {
+    const [budgetName, setBudgetName] = useState<string>(budget.budgetName)
     const [budgetNameError, setBudgetNameError] = useState<boolean>(false)
     const [monthlyAmountError, setMonthlyAmountError] = useState<boolean>(false)
-    const [monthlyAmount, setMonthlyAmount] = useState<string>('')
-    const { setBudgets } = useContext(BudgetContext);
-    const [loader, setLoader] = useState<boolean>(false)
+    const [monthlyAmount, setMonthlyAmount] = useState<string>(budget.monthlyBudgetAmount)
+    const { budgets, setBudgets } = useContext(BudgetContext);
+    const [btnLoader, setBtnLoader] = useState<boolean>(false)
     const [sumError, setSumError] = useState<boolean>(false)
     const [sumOfPercentages, setSumOfPercentages] = useState<number>(0)
-    const [categories, setCategories] = useState<BudgetCategoryInput[]>([{
-        nameField: {
-            name: '',
-            emptyField: false
-        }, percentageField: {
-            percentage: '',
-            emptyField: false,
-        }
-    }]);
+    const portalRoot = document.getElementById('portal-root');
+    const [categories, setCategories] = useState<BudgetCategoryInput[]>(() => {
+        const initialCategories = budget.categories.map(category => {
+            return {
+                nameField: {
+                    name: category.name,
+                    emptyField: false
+                }, percentageField: {
+                    percentage: category.percentage.toString(),
+                    emptyField: false,
+                }
+            }
+        })
+        return initialCategories
+
+    })
 
     const handleAddCategory = () => {
         setCategories([...categories, {
@@ -45,13 +55,13 @@ export const AddBudgetModal = ({ setModalOpen }: AddBudgetProps) => {
     };
 
     const handleRemoveCategory = (indexToRemove: number) => {
-        const newCategories = categories.filter((_, index) => index !== indexToRemove);
+        const newCategories = categories.filter((_: BudgetCategoryInput, index: number) => index !== indexToRemove);
         setCategories(newCategories);
     };
 
-    const addBudget = async () => {
+    const editBudget = async () => {
         try {
-            setLoader(true)
+            setBtnLoader(true)
             const newCategories = categories.map((category) => {
                 const isEmptyName = category.nameField.name === '';
                 const isEmptyPercentage = category.percentageField.percentage === '';
@@ -92,43 +102,45 @@ export const AddBudgetModal = ({ setModalOpen }: AddBudgetProps) => {
                 } else {
                     setMonthlyAmountError(false)
                 }
-                setLoader(false)
+                setBtnLoader(false)
                 return
             }
 
-            const budgetCategories = categories.map((category: BudgetCategoryInput) => {
+            const budgetCategories = categories.map((category) => {
                 return {
                     name: category.nameField.name,
                     percentage: parseInt(category.percentageField.percentage)
                 }
             })
 
-            const budget = {
+            const newBudget = {
                 budgetName: budgetName,
                 budgetCategories: budgetCategories,
-                monthlyBudgetAmount: monthlyAmount
+                monthlyBudgetAmount: monthlyAmount,
+                budgetId: budget._id
             }
 
             setSumError(false)
             setBudgetNameError(false)
             setMonthlyAmountError(false)
-            const response = await axios.post(`${process.env.REACT_APP_BACKEND_API_URL}/api/v1/budget/add-budget`, budget, { withCredentials: true })
+            const response = await axios.put(`${process.env.REACT_APP_BACKEND_API_URL}/api/v1/budget/edit-budget`, newBudget, { withCredentials: true })
             if (response.status === 200) {
                 setBudgets(prevBudgets => {
                     if (prevBudgets === null) {
                         return [response.data];
                     } else {
-                        return [...prevBudgets, response.data];
+                        const unEditedBudgets = budgets?.filter((prevBudget) => prevBudget._id !== budget._id) ?? []
+                        return [...unEditedBudgets, response.data];
                     }
                 });
                 setModalOpen(false)
-                toast.success('🎉 Budget Successfully Created!');
+                toast.success('🎉 Budget Successfully Edited!');
             }
-            setLoader(false)
+            setBtnLoader(false)
         } catch (err) {
             console.log(err)
             toast.error('Unknown Server Error')
-            setLoader(false)
+            setBtnLoader(false)
         }
     }
 
@@ -139,17 +151,23 @@ export const AddBudgetModal = ({ setModalOpen }: AddBudgetProps) => {
         }, 0);
 
         setSumOfPercentages(sumOfPercentages)
+        console.log(budget)
     }, [categories])
 
-    return (
+    if (!portalRoot) {
+        return null;
+    }
+
+    return ReactDOM.createPortal(
         <ModalBackground>
-            <div className='bg-white p-6 rounded-lg w-[600px]'>
+            <div className='bg-white p-6 rounded-lg w-[600px] min-h-[435px] flex flex-col'>
                 <div className='flex items-center justify-between border-b-[#dadada] border-b border-solid pb-2 mb-6 text-[#1b1b1b]'>
-                    <h2 className='text-lg'>Add Budget</h2>
+                    <h2 className='text-lg'>Edit Budget</h2>
                     <div className='flex items-center justify-center w-5 h-5 cursor-pointer' onClick={() => setModalOpen(false)}>
                         <FontAwesomeIcon className='h-full w-full' color='#1b1b1b' icon={faXmark} />
                     </div>
                 </div>
+
                 <div className='flex flex-col gap-6'>
                     <div className='flex flex-col'>
                         <label className='text-[13px] mb-1 ml-1 text-[#444444]'>Budget Name <span className='text-[#FF4D4D]'>*</span></label>
@@ -231,19 +249,20 @@ export const AddBudgetModal = ({ setModalOpen }: AddBudgetProps) => {
                     </div>
                     <div className='flex gap-4 h-10'>
                         <Button additionalStyles='h-full bg-[#1b1b1b] text-white rounded hover:bg-[#141414]' onClickHandler={() => setModalOpen(false)}>Close</Button>
-                        {loader ? (
+                        {btnLoader ? (
                             <Button type='button' additionalStyles='text-white h-full rounded bg-[#6d9dc5] border-[#6d9dc5] cursor-default'>
                                 <span className="btnLoader"></span>
                             </Button>
                         ) : (
                             <Button additionalStyles='h-full bg-[#6d9dc5] text-white rounded border-[#6d9dc5] hover:bg-[#63a0d3]'
-                                onClickHandler={addBudget}>
-                                Add
+                                onClickHandler={editBudget}>
+                                Edit
                             </Button>
                         )}
                     </div>
                 </div>
             </div>
-        </ModalBackground>
+        </ModalBackground>,
+        portalRoot
     )
 }

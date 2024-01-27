@@ -14,7 +14,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard.tsx') as any)
 
 const App = () => {
   const [userProfile, setUserProfile] = useState<User | null>(null)
-  const [budgets, setBudgets] = useState<Budget | null>(null)
+  const [budgets, setBudgets] = useState<Budget[] | null>(null)
 
   return (
     <BrowserRouter>

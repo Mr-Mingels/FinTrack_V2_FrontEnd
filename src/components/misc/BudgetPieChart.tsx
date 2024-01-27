@@ -1,68 +1,73 @@
-import React, { useEffect, useState } from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
-import { BudgetPieChartProps } from '../../types';
+import React, { useEffect, useState } from 'react'
+import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js'
+import { BudgetPieChartProps } from '../../types'
+
+import { Doughnut } from 'react-chartjs-2'
+
+ChartJS.register(ArcElement, Tooltip)
 
 const BudgetPieChart = ({ categories }: BudgetPieChartProps) => {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [data, setData] = useState<any>([])
+  const [data, setData] = useState<any>([]);
 
   useEffect(() => {
-    const newData = categories.map((category) => {
-      return {
-        name: category.name,
-        value: category.percentage
+    const newData = categories.map((category) => ({
+      name: category.name,
+      value: category.percentage
+    }));
+    setData(newData);
+  }, [categories]);
+
+	const pieChartData = {
+		datasets: [
+			{
+				data: data,
+				backgroundColor: '#6d9dc5',
+				borderColor: 'white',
+				borderWidth: 1,
+			},
+		],
+	}
+
+	const options = {
+		responsive: true,
+		maintainAspectRatio: false,
+		plugins: {
+			legend: {
+				display: false,
+			},
+      tooltip: {
+        callbacks: {
+          label: function(context: any) {
+            let label = context.dataset.label || '';
+            if (context.parsed) {
+              label = context.dataset.data[context.dataIndex].name
+            }
+            return label;
+          },
+          // Custom tooltip function
+          afterLabel: function(context: any) {
+            const dataset = context.dataset.data;
+            const total = dataset.reduce((acc: any, curr: any) => acc + curr.value, 0);
+            const currentValue = dataset[context.dataIndex].value;
+            const percentage = ((currentValue / total) * 100).toFixed(0);
+            return ' ' + '\n' + 'Budget Allocation: ' + percentage + '%';
+          }
+        }
       }
-    })
-    setData(newData)
-  }, [categories])
+		},
+	}
 
-  const handleMouseEnter = (index: number) => {
-    setActiveIndex(index);
-  };
+	return (
+		<div
+			className={`flex flex-grow items-center justify-between h-full`}
+		>
+			<Doughnut
+				data={pieChartData}
+				options={options}
+				className="doughNutChart"
+			/>
+		</div>
+	)
+}
 
-  const handleMouseLeave = () => {
-    setActiveIndex(null);
-  };
-
-  const renderTooltipContent = (props: any) => {
-    const { payload } = props;
-    if (!payload || payload.length === 0) return null;
-
-    const { name, value } = payload[0].payload;
-    return (
-      <div className='px-4 py-2 bg-white border border-solid border-[#1b1b1b] text-sm whitespace-nowrap'>
-        <p className=''>{name}</p>
-        <p className='mt-2'>Budget Allocation: {value}%</p>
-      </div>
-    );
-  };
-
-  return (
-    <ResponsiveContainer width={'100%'} height={'100%'}>
-      <PieChart>
-        <Pie
-          data={data}
-          labelLine={false}
-          fill="#8884d8"
-          dataKey="value"
-        >
-          {data.map((index: number) => (
-            <Cell key={`cell-${index}`} fill={`#6d9dc5`}
-              onMouseEnter={() => handleMouseEnter(index)}
-              onMouseLeave={handleMouseLeave}
-              style={{
-                opacity: activeIndex === index ? 0.7 : 1,
-                transition: 'opacity 0.3s ease-in-out',
-              }} />
-          ))}
-        </Pie>
-        <Tooltip content={renderTooltipContent} />
-      </PieChart>
-    </ResponsiveContainer>
-  );
-};
-
-export default BudgetPieChart;
-
-
-
+export default BudgetPieChart
