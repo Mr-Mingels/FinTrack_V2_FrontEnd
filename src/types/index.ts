@@ -17,6 +17,7 @@ export interface Budget {
     budgetName: string
     categories: BudgetCategories[]
     createdAt: string
+    updatedAt: string
     monthlyBudgetAmount: string
     user: string
     _id: string

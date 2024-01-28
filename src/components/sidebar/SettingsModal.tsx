@@ -1,13 +1,12 @@
 import React, { useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-//import UserProfileContext from '../../contexts/UserProfile.ts';
 import { SettingModalProps } from '../../types/sidebar/index.ts';
 import { toast } from 'sonner';
+import { ModalBackground } from '../misc/ModalBackground.tsx';
 
 
 const SettingsModal = ({ setModalOpen }: SettingModalProps) => {
-    // const { userProfile, setUserProfile } = useContext(UserProfileContext);
     const navigate = useNavigate()
 
     const LogOut = async () => {
@@ -23,12 +22,12 @@ const SettingsModal = ({ setModalOpen }: SettingModalProps) => {
     }
 
     return (
-        <div className='fixed min-h-screen h-full w-full z-[9999] bg-[rgba(0,0,0,0.4)] left-0 top-0'>
+        <ModalBackground>
             <div className='flex justify-center items-center w-full min-h-screen h-full'>
                 <button className='h-[30px] w-[100px] m-[30px] bg-white' onClick={LogOut}>LogOut</button>
                 <button className='h-[30px] w-[100px] m-[30px] bg-white' onClick={() => setModalOpen(false)}>Close</button>
             </div>
-        </div>
+        </ModalBackground>
     )
 }
 
