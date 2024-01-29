@@ -11,6 +11,7 @@ export interface User {
 export type BudgetCategories = {
     name: string
     percentage: number
+    _id: string
 }
 
 export interface Budget {
@@ -50,6 +51,33 @@ export interface ModalInputProps {
     onChangeHandler: (e: ChangeEvent<HTMLInputElement>) => void;
     additionalStyles?: string
     placeholder: string
+}
+
+export interface ModalTextAreaProps {
+    value: string
+    onChangeHandler: (e: ChangeEvent<HTMLTextAreaElement>) => void;
+    additionalStyles?: string
+    placeholder: string
+}
+
+export interface ModalLabelProps {
+    children: ReactNode
+    required?: boolean
+    additionalStyles?: string
+}
+
+export type DropDownFieldProps = {
+    value: string
+    id: string
+    error: boolean
+}
+
+export interface ModalDropDownProps {
+    options: any
+    value: string
+    additionalStyles?: string
+    deactivated?: boolean
+    changeValue: React.Dispatch<React.SetStateAction<DropDownFieldProps>>
 }
 
 export type BudgetCategoryInput = {

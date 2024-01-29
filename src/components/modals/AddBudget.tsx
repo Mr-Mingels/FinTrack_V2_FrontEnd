@@ -8,6 +8,7 @@ import { BudgetCategoryInput } from '../../types'
 import { toast } from 'sonner'
 import BudgetContext from '../../contexts/Budgets'
 import axios from 'axios'
+import { ModalLabel } from '../misc/ModalLabel'
 
 type AddBudgetProps = {
     setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -152,10 +153,10 @@ export const AddBudgetModal = ({ setModalOpen }: AddBudgetProps) => {
                 </div>
                 <div className='flex flex-col gap-6'>
                     <div className='flex flex-col'>
-                        <label className='text-[13px] mb-1 ml-1 text-[#444444]'>Budget Name <span className='text-[#FF4D4D]'>*</span></label>
+                        <ModalLabel required={true}>Budget Name</ModalLabel>
                         <ModalInput value={budgetName} onChangeHandler={(e) => setBudgetName(e.target.value)} placeholder={budgetNameError ? 'Fill Out Field' : 'Ex. Personal Finance'}
                             additionalStyles={`${budgetNameError ? 'placeholder:text-[#FF4D4D] border-[#FF4D4D]' : ''}`} />
-                        <label className='text-[13px] mb-1 ml-1 mt-6 text-[#444444]'>Monthly Budget Amount <span className='text-[#FF4D4D]'>*</span></label>
+                        <ModalLabel required={true} additionalStyles='mt-6'>Monthly Budget Amount</ModalLabel>
                         <ModalInput value={monthlyAmount} onChangeHandler={(e) => {
                             const input = e.target.value;
                             const isValidInput = /^\d*\.?\d*$/.test(input);
@@ -168,10 +169,10 @@ export const AddBudgetModal = ({ setModalOpen }: AddBudgetProps) => {
                     </div>
                     <div className='flex flex-col'>
                         <div className='flex items-center justify-between'>
-                            <label className='text-[13px] mb-1 ml-1 text-[#444444]'>Budget Categories <span className='text-[#FF4D4D]'>*</span></label>
+                            <ModalLabel required={true}>Budget Categories</ModalLabel>
                             <div className='mb-1 mr-1 text-[13px] text-[#1b1b1b] flex items-center'><span className={`${sumOfPercentages > 100 ? 'text-[#FF4D4D]' : ''}`}>{sumOfPercentages}%</span>&nbsp;/ 100%</div>
                         </div>
-                        <div className='flex flex-col gap-3 overflow-y-scroll max-h-[200px]'>
+                        <div className='flex flex-col gap-3 overflow-y-scroll max-h-[200px] scrollable-div'>
                             {categories.map((category: BudgetCategoryInput, index: number) => (
                                 <div key={index} className='flex gap-4'>
                                     <ModalInput

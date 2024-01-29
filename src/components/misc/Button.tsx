@@ -6,7 +6,7 @@ export const Button = ({onClickHandler, gradient, additionalStyles, type, childr
         <button
             onClick={onClickHandler}
             type={type}
-            className={`${gradient ? 'btnGradient' : ''} ${additionalStyles ? additionalStyles : ''} border
+            className={`${gradient ? 'btnGradient' : ''} ${additionalStyles} border
              text-sm h-[42px] border-solid border-[#1b1b1b] transition-colors flex items-center justify-center w-full
             select-none`}
             disabled={disabled}
