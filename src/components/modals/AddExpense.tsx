@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { ModalBackground } from '../misc/ModalBackground'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
@@ -12,6 +12,8 @@ import { BudgetCategories } from '../../types'
 import { ModalTextArea } from '../misc/ModalTextArea'
 import { toast } from 'sonner'
 import { DropDownFieldProps } from '../../types'
+import ExpenseContext from '../../contexts/Expenses'
+import axios from 'axios'
 
 type AddExpenseProps = {
     setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -37,11 +39,12 @@ export const AddExpense = ({ setModalOpen }: AddExpenseProps) => {
         id: '',
         error: false
     })
-    const { budgets, setBudgets } = useContext(BudgetContext)
+    const { budgets } = useContext(BudgetContext)
+    const { expenses, setExpenses } = useContext(ExpenseContext)
 
     const addExpense = async () => {
         try {
-
+            setBtnLoader(true)
             if (expenseAmount === '' || pickedBudget.id === '' || pickedBudgetCategory.id === '') {
 
                 if (pickedBudget.id === '') {
@@ -80,7 +83,27 @@ export const AddExpense = ({ setModalOpen }: AddExpenseProps) => {
                 return
             }
 
+            const expense = {
+                budget: pickedBudget.id,
+                budgetCategory: pickedBudgetCategory.id,
+                expenseAmount: expenseAmount,
+                description: description
+            }
+
             setExpenseAmountError(false)
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_API_URL}/api/v1/expense/add-expense`, expense, { withCredentials: true })
+            if (response.status === 200) {
+                setExpenses(prevExpenses => {
+                    if (prevExpenses === null) {
+                        return [response.data];
+                    } else {
+                        return [...prevExpenses, response.data];
+                    }
+                });
+                setModalOpen(false)
+                toast.success('🎉 Expense Successfully Created!');
+            }
+            setBtnLoader(false)
         } catch (err) {
             console.log(err)
             toast.error('Unknown Server Error')
@@ -100,7 +123,13 @@ export const AddExpense = ({ setModalOpen }: AddExpenseProps) => {
                 <div className='grid grid-cols-2 grid-rows-2 grid-flow-row gap-4 mb-6'>
                     <div className='flex flex-col'>
                         <ModalLabel required={true}>Amount</ModalLabel>
-                        <ModalInput value={expenseAmount} onChangeHandler={(e) => setExpenseAmount(e.target.value)}
+                        <ModalInput value={expenseAmount} onChangeHandler={(e) => {
+                            const input = e.target.value;
+                            const isValidInput = /^\d*\.?\d*$/.test(input);
+                            if (isValidInput) {
+                                setExpenseAmount(e.target.value)
+                            }
+                        }}
                             placeholder={expenseAmountError ? 'Fill Out Field' : 'Expense Amount'} 
                             additionalStyles={`${expenseAmountError ? 'placeholder:text-[#FF4D4D] border-[#FF4D4D]' : ''}`}/>
                     </div>
@@ -151,7 +180,7 @@ export const AddExpense = ({ setModalOpen }: AddExpenseProps) => {
                 </div>
                 <div className='flex flex-col mb-6'>
                     <ModalLabel required={false}>Description</ModalLabel>
-                    <ModalTextArea value={description} placeholder='' onChangeHandler={(e) => setDescription(e.target.value)} />
+                    <ModalTextArea value={description} placeholder='Write a brief description...' onChangeHandler={(e) => setDescription(e.target.value)} />
                 </div>
                 <div className='flex gap-4 h-10'>
                     <Button additionalStyles='h-full bg-[#1b1b1b] text-white rounded hover:bg-[#141414]' onClickHandler={() => setModalOpen(false)}>Close</Button>

@@ -1,9 +1,12 @@
 export const formatCurrency = (number: number) => {
+    const hasDecimal = number % 1 !== 0;
+
     const formattedNumber = Number(number).toLocaleString('en-US', {
         style: 'currency',
         currency: 'USD',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
+        minimumFractionDigits: hasDecimal ? 2 : 0,
+        maximumFractionDigits: 2
     });
+    
     return formattedNumber;
 }

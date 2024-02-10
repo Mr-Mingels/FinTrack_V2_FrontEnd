@@ -24,6 +24,16 @@ export interface Budget {
     _id: string
 }
 
+export interface Expense {
+    budget: string
+    user: string
+    budgetCategory: string
+    expenseAmount: string
+    description: string
+    createdAt: string
+    _id: string
+}
+
 export interface InputFieldProps {
     value: string
     additionalStyles?: string
