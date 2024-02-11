@@ -6,6 +6,7 @@ import ExpenseContext from '../../contexts/Expenses'
 import { GetExpenses } from '../../utils/expenseUtils'
 import { formatDate } from '../../utils/dateUtils'
 import { formatCurrency } from '../../utils/currencyUtils'
+import ProgressBar from '@ramonak/react-progress-bar'
 
 const Expenses = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false)
@@ -28,13 +29,16 @@ const Expenses = () => {
 
     const updatedExpenses = expenses.map(expense => {
       const budgetInfo = budgetMap.get(expense.budget);
+      console.log(budgetInfo)
       const budgetName = budgetInfo.budgetName
+      const budgetAmount = budgetInfo.monthlyBudgetAmount
       return {
         ...expense,
-        budgetName: budgetName
+        budgetName: budgetName,
+        budgetAmount: budgetAmount
       };
     });
-
+    console.log(expenses)
     setRenderedExpenses(updatedExpenses)
   }, [expenses]);
 
@@ -49,22 +53,39 @@ const Expenses = () => {
           Add Expense +
         </button>
       </div>
-      {!renderedExpenses ? (
+      {!expenses ? (
         <div className='w-full h-full flex flex-grow mb-12 justify-center items-center'><span className='dashBoardLoader'></span></div>
       ) : (
-        <div className='grid grid-cols-1 gap-8 pb-6'>
-          {renderedExpenses?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((expense, index) => (
-            <div key={index} className='bg-white flex justify-between rounded-lg p-4 border border-solid border-[#1b1b1b] transition 
+        <div className='grid grid-cols-3 gap-4 pb-6'>
+          {renderedExpenses?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((expense, index) => {
+            const completionPercentage = expense.expenseAmount / expense.budgetAmount * 100
+            const progressBarStylings = {
+              height: '40px'
+            }
+            return (
+              <div key={index} className='bg-white flex justify-between rounded-lg py-3.5 px-4 border border-solid border-[#1b1b1b] transition 
               hover:border-[#6d9dc5] cursor-pointer'>
-              <div className='flex flex-col gap-1'>
-                <h2>{expense.budgetName}</h2>
-                <span className='text-xs text-[#808080]'>{formatDate(expense.createdAt)}</span>
+                <div className='flex flex-col gap-2 w-full'>
+                  <h2>{expense.budgetName}</h2>
+                  <span className='text-sm text-[#444444]'>{formatCurrency(expense.budgetAmount)}</span>
+                  <div className='text-sm'>
+                    <span className='text-[#6d9dc5] font-semibold'>Expense Amount:</span>
+                    <span> {formatCurrency(expense.expenseAmount)}</span>
+                  </div>
+                  <div className='flex gap-2 items-center'>
+                    <span className='text-sm text-[#444444]'>{Number.isInteger(completionPercentage) ? completionPercentage.toFixed() : completionPercentage.toFixed(2)}%</span>
+                    <div className='h-3 w-full'>
+                      <ProgressBar completed={completionPercentage > 100 ? 100 : completionPercentage} bgColor='#6d9dc5' animateOnRender={true} 
+                      labelClassName='progress-bar-label' margin='auto' height='100%'/>
+                    </div>
+                  </div>
+                  <span className={`text-sm font-semibold italic ${completionPercentage > 100 ? 'text-[#FF4D4D]' : 'text-[#28a745]'}`}>
+                    {completionPercentage > 100 ? 'Over Budet' : 'Under Budget'}
+                  </span>
+                </div>
               </div>
-              <div className=''>
-                  <span>-{formatCurrency(expense.expenseAmount)}</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
       {modalOpen && (
