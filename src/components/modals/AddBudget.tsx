@@ -8,7 +8,7 @@ import { BudgetCategoryInput } from '../../types'
 import { toast } from 'sonner'
 import BudgetContext from '../../contexts/Budgets'
 import axios from 'axios'
-import { ModalLabel } from '../misc/ModalLabel'
+import { ModalInputLabel } from '../misc/ModalInputLabel'
 
 type AddBudgetProps = {
     setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -153,10 +153,10 @@ export const AddBudgetModal = ({ setModalOpen }: AddBudgetProps) => {
                 </div>
                 <div className='flex flex-col gap-6'>
                     <div className='flex flex-col'>
-                        <ModalLabel required={true}>Budget Name</ModalLabel>
+                        <ModalInputLabel required={true}>Budget Name</ModalInputLabel>
                         <ModalInput value={budgetName} onChangeHandler={(e) => setBudgetName(e.target.value)} placeholder={budgetNameError ? 'Fill Out Field' : 'Ex. Personal Finance'}
                             additionalStyles={`${budgetNameError ? 'placeholder:text-[#FF4D4D] border-[#FF4D4D]' : ''}`} />
-                        <ModalLabel required={true} additionalStyles='mt-6'>Monthly Budget Amount</ModalLabel>
+                        <ModalInputLabel required={true} additionalStyles='mt-6'>Monthly Budget Amount</ModalInputLabel>
                         <ModalInput value={monthlyAmount} onChangeHandler={(e) => {
                             const input = e.target.value;
                             const isValidInput = /^\d*\.?\d*$/.test(input);
@@ -169,7 +169,7 @@ export const AddBudgetModal = ({ setModalOpen }: AddBudgetProps) => {
                     </div>
                     <div className='flex flex-col'>
                         <div className='flex items-center justify-between'>
-                            <ModalLabel required={true}>Budget Categories</ModalLabel>
+                            <ModalInputLabel required={true}>Budget Categories</ModalInputLabel>
                             <div className='mb-1 mr-1 text-[13px] text-[#1b1b1b] flex items-center'><span className={`${sumOfPercentages > 100 ? 'text-[#FF4D4D]' : ''}`}>{sumOfPercentages}%</span>&nbsp;/ 100%</div>
                         </div>
                         <div className='flex flex-col gap-3 overflow-y-scroll max-h-[200px] scrollable-div'>

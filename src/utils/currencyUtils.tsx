@@ -1,4 +1,6 @@
-export const formatCurrency = (number: number) => {
+export const formatCurrency = (number: number | string) => {
+    number = number as number;
+
     const hasDecimal = number % 1 !== 0;
 
     const formattedNumber = Number(number).toLocaleString('en-US', {

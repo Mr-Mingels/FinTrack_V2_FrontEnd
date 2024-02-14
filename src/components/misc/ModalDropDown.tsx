@@ -36,6 +36,7 @@ export const ModalDropDown = ({ value, options, additionalStyles, deactivated, c
                                 changeValue({
                                     value: option.name,
                                     id: option.id,
+                                    percentage: option.percentage ? option.percentage : null,
                                     error: false
                                 })
                                 setNewValue(option.name)

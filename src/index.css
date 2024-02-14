@@ -55,7 +55,8 @@ a {
   height: 16px;
   border-radius: 50%;
   position: relative;
-  animation: rotate 1s linear infinite
+  animation: rotate 1s linear infinite;
+  background-color: transparent;
 }
 
 .btnLoader::before, .modalLoader::before {
@@ -66,6 +67,7 @@ a {
   border-radius: 50%;
   border: 2px solid #ffffff;
   animation: prixClipFix 2s linear infinite;
+  background-color: transparent;
 }
 
 .modalLoader {

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext } from 'react'
 import { ModalBackground } from '../misc/ModalBackground'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
@@ -7,42 +7,44 @@ import { ModalInput } from '../misc/ModalInput'
 import { ModalInputLabel } from '../misc/ModalInputLabel'
 import BudgetContext from '../../contexts/Budgets'
 import { ModalDropDown } from '../misc/ModalDropDown'
-import { Budget } from '../../types'
+import { Budget, Expense } from '../../types'
 import { BudgetCategories } from '../../types'
 import { ModalTextArea } from '../misc/ModalTextArea'
 import { toast } from 'sonner'
 import { DropDownFieldProps } from '../../types'
 import ExpenseContext from '../../contexts/Expenses'
 import axios from 'axios'
+import ReactDOM from 'react-dom'
 
 type AddExpenseProps = {
     setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+    expense: Expense
 }
 
-export const AddExpense = ({ setModalOpen }: AddExpenseProps) => {
+export const EditExpense = ({ setModalOpen, expense }: AddExpenseProps) => {
     const [btnLoader, setBtnLoader] = useState<boolean>(false)
-    const [description, setDescription] = useState<string>('')
-    const [expenseAmount, setExpenseAmount] = useState<string>('')
+    const [description, setDescription] = useState<string>(expense.description)
+    const [expenseAmount, setExpenseAmount] = useState<string>(expense.expenseAmount)
     const [expenseAmountError, setExpenseAmountError] = useState<boolean>(false)
+    const portalRoot = document.getElementById('portal-root');
     const [pickedBudget, setPickedBudget] = useState<DropDownFieldProps>({
-        value: '-- None --',
-        id: '',
+        value: expense.budget.budgetName,
+        id: expense.budget._id,
         error: false
     })
     const [pickedBudgetCategory, setPickedBudgetCategory] = useState<DropDownFieldProps>({
-        value: '-- None --',
-        percentage: null,
-        id: '',
+        value: expense.budgetCategory.budgetCategoryName,
+        percentage: expense.budgetCategory.budgetCategoryPercentage,
+        id: expense.budgetCategory.budgetCategoryId,
         error: false
     })
     const [pickedSubCategory, setPickedSubCategory] = useState<DropDownFieldProps>({
         value: '-- None --',
         id: '',
-        percentage: null,
         error: false
     })
     const { budgets } = useContext(BudgetContext)
-    const { setExpenses } = useContext(ExpenseContext)
+    const { expenses, setExpenses } = useContext(ExpenseContext)
 
     const addExpense = async () => {
         try {
@@ -85,7 +87,7 @@ export const AddExpense = ({ setModalOpen }: AddExpenseProps) => {
                 return
             }
 
-            const expense = {
+            const newExpense = {
                 budget: pickedBudget.id,
                 budgetCategory: {
                     budgetCategoryName: pickedBudgetCategory.value,
@@ -93,17 +95,19 @@ export const AddExpense = ({ setModalOpen }: AddExpenseProps) => {
                     budgetCategoryPercentage: pickedBudgetCategory.percentage
                 },
                 expenseAmount: expenseAmount,
-                description: description
+                description: description,
+                expenseId: expense._id
             }
 
             setExpenseAmountError(false)
-            const response = await axios.post(`${process.env.REACT_APP_BACKEND_API_URL}/api/v1/expense/add-expense`, expense, { withCredentials: true })
+            const response = await axios.put(`${process.env.REACT_APP_BACKEND_API_URL}/api/v1/expense/edit-expense`, newExpense, { withCredentials: true })
             if (response.status === 200) {
                 setExpenses(prevExpenses => {
                     if (prevExpenses === null) {
                         return [response.data];
                     } else {
-                        return [...prevExpenses, response.data];
+                        const unEditedExpenses = expenses?.filter((prevExpense) => prevExpense._id !== expense._id) ?? []
+                        return [...unEditedExpenses, response.data];
                     }
                 });
                 setModalOpen(false)
@@ -117,11 +121,15 @@ export const AddExpense = ({ setModalOpen }: AddExpenseProps) => {
         }
     }
 
-    return (
+    if (!portalRoot) {
+        return null;
+    }
+
+    return ReactDOM.createPortal(
         <ModalBackground>
             <div className='bg-white p-6 rounded-lg w-[600px]'>
                 <div className='flex items-center justify-between border-b-[#dadada] border-b border-solid pb-2 mb-6 text-[#1b1b1b]'>
-                    <h2 className='text-lg'>Add Expense</h2>
+                    <h2 className='text-lg'>Edit Expense</h2>
                     <div className='flex items-center justify-center w-5 h-5 cursor-pointer' onClick={() => setModalOpen(false)}>
                         <FontAwesomeIcon className='h-full w-full' color='#1b1b1b' icon={faXmark} />
                     </div>
@@ -198,11 +206,12 @@ export const AddExpense = ({ setModalOpen }: AddExpenseProps) => {
                     ) : (
                         <Button additionalStyles='h-full bg-[#6d9dc5] text-white rounded border-[#6d9dc5] hover:bg-[#63a0d3]'
                             onClickHandler={addExpense}>
-                            Add
+                            Edit
                         </Button>
                     )}
                 </div>
             </div>
-        </ModalBackground>
+        </ModalBackground>,
+        portalRoot
     )
 }

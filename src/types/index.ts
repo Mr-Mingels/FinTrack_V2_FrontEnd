@@ -25,12 +25,17 @@ export interface Budget {
 }
 
 export interface Expense {
-    budget: string
+    budget: Budget
     user: string
-    budgetCategory: string
+    budgetCategory: {
+        budgetCategoryName: string,
+        budgetCategoryId: string,
+        budgetCategoryPercentage: number | null
+    }
     expenseAmount: string
     description: string
     createdAt: string
+    updatedAt: string
     _id: string
 }
 
@@ -47,7 +52,7 @@ export interface ButtonProps {
     type?: "submit" | "reset" | "button"
     gradient?: boolean
 	additionalStyles?: string
-	onClickHandler?: () => void
+	onClickHandler?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
     children: ReactNode
 	disabled?: boolean
 }
@@ -78,6 +83,7 @@ export interface ModalLabelProps {
 
 export type DropDownFieldProps = {
     value: string
+    percentage?: number | null
     id: string
     error: boolean
 }
