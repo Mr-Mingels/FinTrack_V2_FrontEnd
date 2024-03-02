@@ -7,9 +7,9 @@ export const formatDate = (dateString: string) => {
     let currentDay = '';
 
     if (date.toDateString() === today.toDateString()) {
-        currentDay = 'Today, ';
+        currentDay = 'Today';
     } else if (date.toDateString() === yesterday.toDateString()) {
-        currentDay = 'Yesterday, ';
+        currentDay = 'Yesterday';
     }
 
     const options: Intl.DateTimeFormatOptions = { 
@@ -21,15 +21,12 @@ export const formatDate = (dateString: string) => {
         year: date.getFullYear() !== currentYear ? 'numeric' : undefined
     };
 
-    const formattedDate = date.toLocaleDateString('en-US', options);
-    const formattedTime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-
-    if (currentDay !== '' && date.getFullYear() === currentYear) {
-        return currentDay + ' ' + formattedTime;
+    let formattedDate = '';
+    if (currentDay !== '') {
+        formattedDate = `${currentDay}, ${date.toLocaleTimeString('en-US', options)}`;
     } else {
-        return currentDay + formattedDate;
+        formattedDate = date.toLocaleDateString('en-US', options).replace('at', ',');
     }
-}
 
-
-
+    return formattedDate.replace(/\s*,/, ',');
+};
